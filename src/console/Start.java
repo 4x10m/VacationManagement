@@ -8,7 +8,11 @@ import core.CDS;
 import core.Employe;
 import core.HR;
 import core.Request;
-import core.RequestType;
+import core.enums.RequestType;
+import core.exceptions.NotEnoughTimeInMeter;
+import core.exceptions.RequestBegginDateBeforeEndDateException;
+import core.exceptions.RequestBegginDateBeforeTodayException;
+import core.exceptions.RequestDateIntervalDurationException;
 
 public class Start {
 	private static final String requestformatmodel = "%s\t%s\t%s\t%s\t%s\n";
@@ -105,7 +109,7 @@ public class Start {
 		
 		switch (choice) {
 		case 1:
-			nouvellerequete();
+			//nouvellerequete();
 			break;
 		case 2:
 			voirMesRequetes();
@@ -160,9 +164,9 @@ public class Start {
 	private static void afficheunerequetecds(Request request) {
 		String convetedrequest = null;
 		
-		convertedrequest = String.format("%s\t%s\t%s\t, request.getType(), request.)
+		//convertedrequest = String.format("%s\t%s\t%s\t, request.getType(), request.)
 		
-		convertedrequest = String.format(request, args)
+		//convertedrequest = String.format(request, args)
 	}
 
 	private static void menuhr() {
@@ -197,7 +201,7 @@ public class Start {
 		
 	}
 
-	private static void nouvellerequete() {
+	private static void nouvellerequete() throws NotEnoughTimeInMeter, RequestBegginDateBeforeTodayException, RequestBegginDateBeforeEndDateException, RequestDateIntervalDurationException {
 		RequestType type;
 		Date beggindate, enddate;
 		
@@ -242,11 +246,11 @@ public class Start {
 		
 		switch (choice) {
 		case 1:
-			return RequestType.Conges;
+			return RequestType.PAID_HOLLIDAYS;
 		case 2:
-			return RequestType.RTT;
+			return RequestType.REDUCTION_IN_WORKING_TIME;
 		case 3:
-			return RequestType.Formation;
+			return RequestType.FORMATION;
 		}
 		
 		return null;

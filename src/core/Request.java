@@ -1,9 +1,15 @@
 package core;
 
+import java.util.Calendar;
 import java.util.Date;
 
+import core.enums.RequestType;
+import core.exceptions.RequestBegginDateBeforeEndDateException;
+import core.exceptions.RequestBegginDateBeforeTodayException;
+import core.exceptions.RequestDateIntervalDurationException;
+
 public class Request {
-	private static final long CONST_DURATION_OF_DAY = 1000l * 60 * 60 * 24;
+	private static final long DURATION_OF_A_DAY_IN_MILLISECONDE = 1000l * 60 * 60 * 24;
 	
 	private final Employe owner;
 	private final RequestType type;
@@ -40,17 +46,17 @@ public class Request {
 		getOwner().getHumanresource().addARequest(this);
 	}
 	public void checkHR() throws Exception {
-		int nbday = (int)(Math.abs(beggindate.getTime() - enddate.getTime()) / CONST_DURATION_OF_DAY);
+		int nbday = (int)(Math.abs(beggindate.getTime() - enddate.getTime()) / DURATION_OF_A_DAY_IN_MILLISECONDE);
 		checkHR = true;
 		
 		switch(type) {
-		case Conges:
+		case PAID_HOLLIDAYS:
 			getOwner().setCompteurconges(getOwner().getCompteurconges() - nbday);
 			break;
-		case Formation:
+		case FORMATION:
 			getOwner().setCompteurformation(getOwner().getCompteurformation() - nbday);
 			break;
-		case RTT:
+		case REDUCTION_IN_WORKING_TIME:
 			getOwner().setCompteurrtt(getOwner().getCompteurrtt() - nbday);
 			break;
 		}
@@ -65,7 +71,30 @@ public class Request {
 		this.motif = motif;
 	}
 	
-	public Request(Employe owner, RequestType type, Date beggindate, Date enddate) {
+	public Request(Employe owner, RequestType type, Date beggindate, Date enddate) throws RequestBegginDateBeforeTodayException, RequestBegginDateBeforeEndDateException, RequestDateIntervalDurationException {
+		Date today = Calendar.getInstance().getTime();
+		
+		beggindate.setHours(0);
+		beggindate.setMinutes(1);
+		
+		enddate.setHours(0);
+		enddate.setMinutes(1);
+		
+		//check if begin date is after today
+		if(beggindate.before(today) || (beggindate.getDate() == today.getDate() && beggindate.getMonth() >= today.getMonth() && beggindate.getYear() >= today.getYear())) {
+			throw new RequestBegginDateBeforeTodayException(beggindate);
+		}
+		
+		//check if begin date is before end date
+		if(beggindate.after(enddate)) {
+			throw new RequestBegginDateBeforeEndDateException(enddate);
+		}
+		
+		//check if interval between begin date and end date is bigger than one day
+		if(Math.abs(beggindate.getTime() - enddate.getTime()) < DURATION_OF_A_DAY_IN_MILLISECONDE) {
+			throw new RequestDateIntervalDurationException(beggindate, enddate);
+		}
+		
 		this.owner = owner;
 		this.type = type;
 		
