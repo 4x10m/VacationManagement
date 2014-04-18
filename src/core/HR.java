@@ -2,30 +2,41 @@ package core;
 
 import java.util.ArrayList;
 
+import databaseaccess.DatabaseController;
+
 public class HR {
-	private ArrayList<Request> requeststocheck;
-	
+	public static DatabaseController databasecontroller;
+	private final int id;
+	private final ArrayList<Request> requeststocheck;
+
 	public ArrayList<Request> getRequestToCheck() {
-		return requeststocheck;
+		return this.requeststocheck;
 	}
-	public void addARequest(Request request) {
-		requeststocheck.add(request);
+
+	public void addARequest(final Request request) {
+		this.requeststocheck.add(request);
 	}
-	
-	public HR() {
-		requeststocheck = new ArrayList<Request>();
+
+	public HR(final int id) {
+		this.id = id;
+		this.requeststocheck = new ArrayList<Request>();
 	}
-	
-	public void acceptRequest(Request request) {
+
+	public void acceptRequest(final Request request) {
 		try {
 			request.checkHR();
-			requeststocheck.remove(request);
+			this.requeststocheck.remove(request);
 		} catch (Exception e) {
-			refuseRequest(request, e.getMessage());
+			this.refuseRequest(request, e.getMessage());
 		}
 	}
-	public void refuseRequest(Request request, String motif) {
+
+	public void refuseRequest(final Request request, final String motif) {
 		request.refuseHR(motif);
-		requeststocheck.remove(request);
+		this.requeststocheck.remove(request);
+	}
+
+	public int getID() {
+		return this.id;
 	}
 }

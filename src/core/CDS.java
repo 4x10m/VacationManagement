@@ -2,26 +2,38 @@ package core;
 
 import java.util.ArrayList;
 
+import databaseaccess.DatabaseController;
+
 public class CDS {
+	public static DatabaseController databasecontroller;
+	private final int id;
 	private ArrayList<Request> requeststocheck = null;
-	
+
 	public ArrayList<Request> getRequestToCheck() {
-		return requeststocheck;
+		return this.requeststocheck;
 	}
-	public void addARequest(Request request) {
-		requeststocheck.add(request);
+
+	public void addARequest(final Request request) {
+		this.requeststocheck.add(request);
 	}
-	
-	public CDS() {
-		requeststocheck = new ArrayList<Request>();
+
+	public int getID() {
+		return this.id;
 	}
-	
-	public void acceptRequest(Request request) {
+
+	public CDS(final int id) {
+		this.id = id;
+		CDS.databasecontroller = CDS.databasecontroller;
+		this.requeststocheck = new ArrayList<Request>();
+	}
+
+	public void acceptRequest(final Request request) {
 		request.checkCDS();
-		requeststocheck.remove(request);
+		this.requeststocheck.remove(request);
 	}
-	public void refuseRequest(Request request, String motif) {
+
+	public void refuseRequest(final Request request, final String motif) {
 		request.refuseCDS(motif);
-		requeststocheck.remove(request);
+		this.requeststocheck.remove(request);
 	}
 }

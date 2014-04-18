@@ -2,7 +2,6 @@ package console;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Scanner;
 
 import core.CDS;
 import core.Employe;
@@ -16,32 +15,36 @@ import core.exceptions.RequestDateIntervalDurationException;
 
 public class Start {
 	private static final String requestformatmodel = "%s\t%s\t%s\t%s\t%s\n";
-	
-	private static CDS chefdeservice = new CDS();
+
+	private static CDS chefdeservice;
 	private static HR humanresource = new HR();
-	private static Employe employe = new Employe(chefdeservice, humanresource);
-	
-	public static void main(String[] args) {
-		start();
+	private static Employe employe = new Employe(Start.chefdeservice,
+			Start.humanresource);
+
+	public static void main(final String[] args) {
+		Start.chefdeservice = new CDS(1);
+
+		// start();
 	}
-	
+
 	private static void start() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "------------------Gestion de congès des employés---------------------\n"
-				+ ""
-				+ "1. Connexion\n"
-				+ "2. A Propos\n"
-				+ "3. Quitter\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "------------------Gestion de congï¿½s des employï¿½s---------------------\n"
+						+ ""
+						+ "1. Connexion\n"
+						+ "2. A Propos\n"
+						+ "3. Quitter\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
 
 		int choice = InputScanner.getIntBetween(1, 3);
-		
+
 		switch (choice) {
 		case 1:
-			auth();
+			Start.auth();
 			break;
 		case 2:
 			break;
@@ -49,201 +52,210 @@ public class Start {
 			System.exit(0);
 		}
 	}
-	
+
 	private static void about() {
-		//TODO about
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "---------------------------------About-------------------------------\n"
-				+ ""
-				+ "Work on progress"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
+		// TODO about
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "---------------------------------About-------------------------------\n"
+						+ ""
+						+ "Work on progress"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
 	}
-	
+
 	private static void auth() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "----------------------------Type d'accés-----------------------------\n"
-				+ ""
-				+ "1. Employe\n"
-				+ "2. Chef de service\n"
-				+ "3. Ressource Humaines\n"
-				+ "4. Retourné a l'écran d'acceuil\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "----------------------------Type d'accï¿½s-----------------------------\n"
+						+ ""
+						+ "1. Employe\n"
+						+ "2. Chef de service\n"
+						+ "3. Ressource Humaines\n"
+						+ "4. Retournï¿½ a l'ï¿½cran d'acceuil\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		int choice = InputScanner.getIntBetween(1, 4);
-		
+
 		switch (choice) {
 		case 1:
-			menuemploye();
+			Start.menuemploye();
 			break;
 		case 2:
-			menucds();
+			Start.menucds();
 			break;
 		case 3:
-			menuhr();
+			Start.menuhr();
 			break;
 		case 4:
-			start();
+			Start.start();
 			break;
 		}
 	}
-	
+
 	private static void menuemploye() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "---------------------------Accès employé-----------------------------\n"
-				+ ""
-				+ "1. Faire une requète de congès\n"
-				+ "2. Voir mes requètes de congès\n"
-				+ "3. Deconnexion\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "---------------------------Accï¿½s employï¿½-----------------------------\n"
+						+ ""
+						+ "1. Faire une requï¿½te de congï¿½s\n"
+						+ "2. Voir mes requï¿½tes de congï¿½s\n"
+						+ "3. Deconnexion\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		int choice = InputScanner.getIntBetween(1, 4);
-		
+
 		switch (choice) {
 		case 1:
-			//nouvellerequete();
+			// nouvellerequete();
 			break;
 		case 2:
-			voirMesRequetes();
+			Start.voirMesRequetes();
 			break;
 		case 3:
-			auth();
+			Start.auth();
 			break;
 		}
 	}
-	
+
 	private static void menucds() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "------------------------Accès chef de service------------------------\n"
-				+ ""
-				+ "1. Voir les requètes a accepter\n"
-				+ "2. Consulter un employe\n"
-				+ "3. Deconnexion\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "------------------------Accï¿½s chef de service------------------------\n"
+						+ ""
+						+ "1. Voir les requï¿½tes a accepter\n"
+						+ "2. Consulter un employe\n"
+						+ "3. Deconnexion\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		int choice = InputScanner.getIntBetween(1, 3);
-		
+
 		switch (choice) {
 		case 1:
-			voirlesrequetesaacceptercds();
+			Start.voirlesrequetesaacceptercds();
 			break;
 		case 2:
-			consulterunemploye();
+			Start.consulterunemploye();
 			break;
 		case 3:
-			auth();
+			Start.auth();
 			break;
 		}
 	}
+
 	private static void consulterunemploye() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private static void voirlesrequetesaacceptercds() {
 		ArrayList<Request> requests = null;
-		
-		requests = chefdeservice.getRequestToCheck();
-		
-		for(Request request : requests) {
-			
+
+		requests = Start.chefdeservice.getRequestToCheck();
+
+		for (Request request : requests) {
+
 		}
 	}
-	
-	private static void afficheunerequetecds(Request request) {
-		String convetedrequest = null;
-		
-		//convertedrequest = String.format("%s\t%s\t%s\t, request.getType(), request.)
-		
-		//convertedrequest = String.format(request, args)
+
+	private static void afficheunerequetecds(final Request request) {
+
+		// convertedrequest = String.format("%s\t%s\t%s\t, request.getType(),
+		// request.)
+
+		// convertedrequest = String.format(request, args)
 	}
 
 	private static void menuhr() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "---------------------Accès ressources humaines-----------------------\n"
-				+ ""
-				+ "1. Voir les requètes a accepter\n"
-				+ "2. Consulter un employé\n"
-				+ "3. Deconnexion\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "---------------------Accï¿½s ressources humaines-----------------------\n"
+						+ ""
+						+ "1. Voir les requï¿½tes a accepter\n"
+						+ "2. Consulter un employï¿½\n"
+						+ "3. Deconnexion\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		int choice = InputScanner.getIntBetween(1, 3);
-		
+
 		switch (choice) {
 		case 1:
-			voirlesrequetesaaccepterhr();
+			Start.voirlesrequetesaaccepterhr();
 			break;
 		case 2:
-			consulterunemploye();
+			Start.consulterunemploye();
 			break;
 		case 3:
-			auth();
+			Start.auth();
 			break;
 		}
 	}
-	
+
 	private static void voirlesrequetesaaccepterhr() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
-	private static void nouvellerequete() throws NotEnoughTimeInMeter, RequestBegginDateBeforeTodayException, RequestBegginDateBeforeEndDateException, RequestDateIntervalDurationException {
-		RequestType type;
-		Date beggindate, enddate;
-		
-		type = nouvellerequete1();
-		beggindate = nouvellerequete2();
-		enddate = nouvellerequete3();
-		
-		employe.doARequest(new Request(employe, type, beggindate, enddate));
-		
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "----------------------Nouvelle Requète Enregistrée-------------------\n"
-				+ ""
-				+ "Votre réquète a bien été enregistrée elle sera soumise a validation\n"
-				+ "auprès du chef de service et des ressources humaines.\n\n"
-				+ ""
-				+ "Appuyez sur entré pour revenir a l'écran a votre ecran de gestion...\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+	private static void nouvellerequete() throws NotEnoughTimeInMeter,
+			RequestBegginDateBeforeTodayException,
+			RequestBegginDateBeforeEndDateException,
+			RequestDateIntervalDurationException {
+		Start.nouvellerequete1();
+		Start.nouvellerequete2();
+		Start.nouvellerequete3();
+
+		// Start.employe.doARequest(new Request(Start.employe, type, beggindate,
+		// enddate));
+
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "----------------------Nouvelle Requï¿½te Enregistrï¿½e-------------------\n"
+						+ ""
+						+ "Votre rï¿½quï¿½te a bien ï¿½tï¿½ enregistrï¿½e elle sera soumise a validation\n"
+						+ "auprï¿½s du chef de service et des ressources humaines.\n\n"
+						+ ""
+						+ "Appuyez sur entrï¿½ pour revenir a l'ï¿½cran a votre ecran de gestion...\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		InputScanner.getNext();
-		
-		menuemploye();
+
+		Start.menuemploye();
 	}
-	
+
 	private static RequestType nouvellerequete1() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "------------------------Nouvelle Requète 1/3-------------------------\n"
-				+ ""
-				+ "Selectionnez le type\n"
-				+ ""
-				+ "1. Congès\n"
-				+ "2. RTT\n"
-				+ "3. Formation\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "------------------------Nouvelle Requï¿½te 1/3-------------------------\n"
+						+ ""
+						+ "Selectionnez le type\n"
+						+ ""
+						+ "1. Congï¿½s\n"
+						+ "2. RTT\n"
+						+ "3. Formation\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		int choice = InputScanner.getIntBetween(1, 3);
-		
+
 		switch (choice) {
 		case 1:
 			return RequestType.PAID_HOLLIDAYS;
@@ -252,74 +264,83 @@ public class Start {
 		case 3:
 			return RequestType.FORMATION;
 		}
-		
+
 		return null;
 	}
-	
+
 	private static Date nouvellerequete2() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "------------------------Nouvelle Requète 2/3-------------------------\n"
-				+ ""
-				+ "Entrez la date de départ (Format: dd/mm/yyyy)\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "------------------------Nouvelle Requï¿½te 2/3-------------------------\n"
+						+ ""
+						+ "Entrez la date de dï¿½part (Format: dd/mm/yyyy)\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		return InputScanner.getDate();
 	}
-	
+
 	private static Date nouvellerequete3() {
-		System.out.println(""
-				+ "_____________________________________________________________________\n"
-				+ "------------------------Nouvelle Requète 3/3-------------------------\n"
-				+ ""
-				+ "Entrez la date de fin (Format: dd/mm/yyyy)\n"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________");
-		
+		System.out
+				.println(""
+						+ "_____________________________________________________________________\n"
+						+ "------------------------Nouvelle Requï¿½te 3/3-------------------------\n"
+						+ ""
+						+ "Entrez la date de fin (Format: dd/mm/yyyy)\n"
+						+ ""
+						+ "---------------------------------------------------------------------\n"
+						+ "_____________________________________________________________________");
+
 		return InputScanner.getDate();
 	}
-	
+
 	private static void voirMesRequetes() {
 		int i = 0;
 		String model = "%s\t%s\t%s\t%s\t%s\t%s\n";
 		String requesttable = " ";
-		ArrayList<Request> requests = employe.getRequests();
-		
-		for(Request request : requests) {
+		ArrayList<Request> requests = Start.employe.getRequests();
+
+		for (Request request : requests) {
 			String checkCDS = "", checkHR = "", motif = "";
-			
-			if(request.isCheckCDS()) checkCDS = "X";
-			else {
+
+			if (request.isCheckCDS()) {
+				checkCDS = "X";
+			} else {
 				checkCDS = " ";
 				motif = request.getMotif();
 			}
-			
-			if(request.isCheckHR()) checkHR = "X";
-			else {
+
+			if (request.isCheckHR()) {
+				checkHR = "X";
+			} else {
 				checkHR = " ";
 				motif = request.getMotif();
 			}
-			
-			requesttable += String.format(model, String.valueOf(i), request.getType(), request.getBeggindate().toString(), request.getEnddate().toString(), checkCDS, checkHR, motif);
-			
+
+			requesttable += String.format(model, String.valueOf(i),
+					request.getType(), request.getBeggindate().toString(),
+					request.getEnddate().toString(), checkCDS, checkHR, motif);
+
 			i++;
 		}
-		
-		System.out.println(String.format(""
-				+ "_____________________________________________________________________\n"
-				+ "-----------------------------Vos requètes----------------------------\n"
-				+ ""
-				+ "ID\tType\tDate de début\tDate de fin\tValidation CDS\tValidation HR\tMotif\n"
-				+ "%s"
-				+ ""
-				+ "---------------------------------------------------------------------\n"
-				+ "_____________________________________________________________________", requesttable));
-		
+
+		System.out
+				.println(String
+						.format(""
+								+ "_____________________________________________________________________\n"
+								+ "-----------------------------Vos requï¿½tes----------------------------\n"
+								+ ""
+								+ "ID\tType\tDate de dï¿½but\tDate de fin\tValidation CDS\tValidation HR\tMotif\n"
+								+ "%s"
+								+ ""
+								+ "---------------------------------------------------------------------\n"
+								+ "_____________________________________________________________________",
+								requesttable));
+
 		InputScanner.getNext();
-		
-		menuemploye();
+
+		Start.menuemploye();
 	}
 }
