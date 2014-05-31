@@ -1,13 +1,11 @@
-package core;
+package core.structs;
 
 import java.util.ArrayList;
 
-import databaseaccess.DatabaseController;
+import core.database.DatabaseEntity;
 
-public class HR {
-	public static DatabaseController databasecontroller;
-	private final int id;
-	private final ArrayList<Request> requeststocheck;
+public class HR extends User {
+	private ArrayList<Request> requeststocheck;
 
 	public ArrayList<Request> getRequestToCheck() {
 		return this.requeststocheck;
@@ -16,9 +14,14 @@ public class HR {
 	public void addARequest(final Request request) {
 		this.requeststocheck.add(request);
 	}
+	
+	private HR() {
+		super("", "");
+	}
 
-	public HR(final int id) {
-		this.id = id;
+	public HR(int id) {
+		super(id);
+		
 		this.requeststocheck = new ArrayList<Request>();
 	}
 
@@ -36,7 +39,7 @@ public class HR {
 		this.requeststocheck.remove(request);
 	}
 
-	public int getID() {
-		return this.id;
+	public static DatabaseEntity getInstance() {
+		return new HR();
 	}
 }

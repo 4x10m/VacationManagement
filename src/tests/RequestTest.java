@@ -1,4 +1,4 @@
-package junit.core;
+package tests;
 
 import static org.junit.Assert.*;
 
@@ -9,14 +9,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import core.CDS;
-import core.Employe;
-import core.HR;
-import core.Request;
 import core.enums.RequestType;
 import core.exceptions.RequestBegginDateBeforeEndDateException;
 import core.exceptions.RequestBegginDateBeforeTodayException;
 import core.exceptions.RequestDateIntervalDurationException;
+import core.structs.CDS;
+import core.structs.Employe;
+import core.structs.HR;
+import core.structs.Request;
 
 public class RequestTest {
 	static HR hr;

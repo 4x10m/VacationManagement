@@ -3,15 +3,15 @@ package console;
 import java.util.ArrayList;
 import java.util.Date;
 
-import core.CDS;
-import core.Employe;
-import core.HR;
-import core.Request;
 import core.enums.RequestType;
 import core.exceptions.NotEnoughTimeInMeter;
 import core.exceptions.RequestBegginDateBeforeEndDateException;
 import core.exceptions.RequestBegginDateBeforeTodayException;
 import core.exceptions.RequestDateIntervalDurationException;
+import core.structs.CDS;
+import core.structs.Employe;
+import core.structs.HR;
+import core.structs.Request;
 
 public class Start {
 	private static final String requestformatmodel = "%s\t%s\t%s\t%s\t%s\n";
