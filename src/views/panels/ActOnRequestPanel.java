@@ -1,7 +1,5 @@
 package views.panels;
 
-import javax.swing.JPanel;
-
 import core.structs.CDS;
 import core.structs.HR;
 import core.structs.Request;
@@ -11,63 +9,44 @@ import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.border.EmptyBorder;
 
+import views.MainFrame;
+import views.customcomponents.ListPanel;
+
+@SuppressWarnings("serial")
 public class ActOnRequestPanel extends JPanel {
-	private static final long serialVersionUID = -771144492023332037L;
-	
-	private JTextField employe_textfield;
-	private JTextField type_textfield;
-	private JTextField begindate_textfield;
-	private JTextField enddate_textfield;
-	
-	private JButton accept_button;
-	private JButton refuse_button;
-
-	private ActOnRequestPanel()
+	public ActOnRequestPanel(final MainFrame container, final ListPanel paneltorefresh, final Request request, final User user)
 	{
-		setLayout(new GridLayout(0, 2, 0, 0));
+		setLayout(new GridLayout(5, 2, 10, 10));
+		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel lblNewLabel = new JLabel("Employe");
 		JLabel lblNewLabel_1 = new JLabel("Type");
 		JLabel lblNewLabel_2 = new JLabel("Date de d\u00E9but");
 		JLabel lblNewLabel_3 = new JLabel("Date de fin");
 
-		employe_textfield = new JTextField();
-		type_textfield = new JTextField();
-		begindate_textfield = new JTextField();
-		enddate_textfield = new JTextField();
+		JTextField employe_textfield = new JTextField();
+		JTextField type_textfield = new JTextField();
+		JTextField begindate_textfield = new JTextField();
+		JTextField enddate_textfield = new JTextField();
 
-		accept_button = new JButton("Accepter");
-		refuse_button = new JButton("Refuser");
-		
-		add(lblNewLabel);
-		add(employe_textfield);
-		add(lblNewLabel_1);
-		add(type_textfield);
-		add(lblNewLabel_2);
-		add(begindate_textfield);
-		add(lblNewLabel_3);
-		add(enddate_textfield);
-		add(accept_button);
-		add(refuse_button);
-
-	}
-
-	public ActOnRequestPanel(final Request request, final User user) {
-		this();
-		
-		final JFrame container = new JFrame();
-		
-		container.setContentPane(this);
+		JButton accept_button = new JButton("Accepter");
+		JButton refuse_button = new JButton("Refuser");
 		
 		employe_textfield.setText(request.getOwner().getUsername());
 		type_textfield.setText(String.valueOf(request.getType()));
 		begindate_textfield.setText(String.valueOf(request.getBeggindate()));
 		enddate_textfield.setText(String.valueOf(request.getEnddate()));
+		
+		employe_textfield.setEnabled(false);
+		type_textfield.setEnabled(false);
+		begindate_textfield.setEnabled(false);
+		enddate_textfield.setEnabled(false);
 		
 		accept_button.addMouseListener(new MouseAdapter() {
 			@Override
@@ -85,6 +64,9 @@ public class ActOnRequestPanel extends JPanel {
 						e.printStackTrace();
 					}
 				}
+				
+				paneltorefresh.refreshTable();
+				container.dispose();
 			}
 		});
 		
@@ -93,8 +75,19 @@ public class ActOnRequestPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				super.mouseClicked(e);
 				
-				container.setContentPane(new MotifPanel(container, request, user));
+				container.loadMotifPanel(paneltorefresh, request, user);
 			}
 		});
+		
+		add(lblNewLabel);
+		add(employe_textfield);
+		add(lblNewLabel_1);
+		add(type_textfield);
+		add(lblNewLabel_2);
+		add(begindate_textfield);
+		add(lblNewLabel_3);
+		add(enddate_textfield);
+		add(accept_button);
+		add(refuse_button);
 	}
 }

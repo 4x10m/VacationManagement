@@ -1,136 +1,86 @@
 package core.structs;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import core.database.DatabaseController;
 import core.database.DatabaseEntity;
+import core.enums.RequestState;
 import core.enums.RequestType;
+import core.exceptions.NotEnoughTimeInMeter;
 import core.exceptions.RequestBegginDateBeforeEndDateException;
 import core.exceptions.RequestBegginDateBeforeTodayException;
 import core.exceptions.RequestDateIntervalDurationException;
 
 public class Request extends DatabaseEntity {
-	private final static String TABLENAME = "request";
-
+	///ATTRIBUTES
 	private static final long DURATION_OF_A_DAY_IN_MILLISECONDE = 1000l * 60 * 60 * 24;
 
-	private Employe owner;
-	private RequestType type;
-	private Timestamp beggindate, enddate;
+	public int owner;
+	public RequestType type;
+	public Timestamp beggindate, enddate;
 
-	private boolean checkCDS = false, checkHR = false;
-	private String motif = null;
+	public RequestState state;
+	public String motif = null;
 
+	
+	///GETTERS AND SETTERS
 	public Employe getOwner() {
-		return this.owner;
+		return new Employe(owner);
 	}
-
 	public RequestType getType() {
 		return this.type;
 	}
-
 	public Timestamp getBeggindate() {
 		return this.beggindate;
 	}
-
 	public Timestamp getEnddate() {
 		return this.enddate;
 	}
-
-	public boolean isCheckCDS() {
-		return this.checkCDS;
+	public RequestState getState() {
+		return this.state;
 	}
-
-	public boolean isCheckHR() {
-		return this.checkHR;
-	}
-
 	public String getMotif() {
 		return this.motif;
 	}
 
-	public void setOwner(Employe owner) {
+	private void setOwner(int owner) {
 		this.owner = owner;
 	}
-	public void setType(RequestType type) {
+	private void setType(RequestType type) {
 		this.type = type;
 	}
-	public void setBeggindate(Timestamp beggindate) {
+	private void setBeggindate(Timestamp beggindate) {
 		this.beggindate = beggindate;
 	}
-	public void setEnddate(Timestamp enddate) {
+	private void setEnddate(Timestamp enddate) {
 		this.enddate = enddate;
 	}
-	public void setCheckCDS(boolean checkCDS) {
-		this.checkCDS = checkCDS;
+	private void setState(RequestState state) {
+		this.state = state;
 	}
-	public void setCheckHR(boolean checkHR) {
-		this.checkHR = checkHR;
-	}
-	public void setMotif(String motif) {
+	private void setMotif(String motif) {
 		this.motif = motif;
 	}
 	
-	public void checkCDS() {
-		this.checkCDS = true;
-		this.getOwner().getHumanresource().addARequest(this);
-
-		save();
-	}
-
-	public void checkHR() throws Exception {
-		int nbday = (int) (Math.abs(this.beggindate.getTime()
-				- this.enddate.getTime()) / Request.DURATION_OF_A_DAY_IN_MILLISECONDE);
-		this.checkHR = true;
-
-		switch (this.type) {
-		case PAID_HOLLIDAYS:
-			this.getOwner().setHollidaysMeter(this.getOwner().getHollidaysMeter() - nbday);
-			break;
-		case FORMATION:
-			this.getOwner().setFormationMeter(this.getOwner().getFormationMeter() - nbday);
-			break;
-		case REDUCTION_IN_WORKING_TIME:
-			this.getOwner().setRTTMeter(this.getOwner().getRTTMeter() - nbday);
-			break;
-		}
-		
-		save();
-	}
-
-	public void refuseHR(final String motif) {
-		this.checkHR = false;
-		this.motif = motif;
-
-		save();
-	}
-
-	public void refuseCDS(final String motif) {
-		this.checkCDS = false;
-		this.motif = motif;
-
-		save();
-	}
-
-	Request() {
-		super(TABLENAME);
-	}
 	
-	private Request(int id) {
-		super(TABLENAME, id);
+	///CONSTRUCTORS
+	private Request() { }
+	
+	public Request(int id) {
+		super(id);
 		
-		deserialize(DatabaseController.getEntityData(this));
+		load();
 	}
 	
 	public Request(final Employe owner, final RequestType type,
 			final Timestamp beggindate, final Timestamp enddate) throws RequestBegginDateBeforeTodayException,
 			RequestBegginDateBeforeEndDateException,
-			RequestDateIntervalDurationException {
-		super(TABLENAME);
+			RequestDateIntervalDurationException, NotEnoughTimeInMeter {
+		super();
 		
 		Date today = Calendar.getInstance().getTime();
 
@@ -152,33 +102,96 @@ public class Request extends DatabaseEntity {
 
 		// check if interval between begin date and end date is bigger than one
 		// day
-		if (Math.abs(beggindate.getTime() - enddate.getTime()) < Request.DURATION_OF_A_DAY_IN_MILLISECONDE) {
+		if (Math.abs(beggindate.getTime() - enddate.getTime()) < Request.DURATION_OF_A_DAY_IN_MILLISECONDE - 10) {
 			throw new RequestDateIntervalDurationException(beggindate, enddate);
 		}
 		
-		this.owner = owner;
-		this.type = type;
+		int requestdurationindays = (int) (Math.abs(beggindate.getTime()
+				- enddate.getTime()) / Request.DURATION_OF_A_DAY_IN_MILLISECONDE);
 
-		this.beggindate = beggindate;
-		this.enddate = enddate;
+		switch (type) {
+		case PAID_HOLLIDAYS:
+			if (requestdurationindays > owner.getHollidaysMeter()) {
+				throw new NotEnoughTimeInMeter(type,
+						requestdurationindays, owner.getHollidaysMeter());
+			}
+		case FORMATION:
+			if (requestdurationindays > owner.getFormationMeter()) {
+				throw new NotEnoughTimeInMeter(type,
+						requestdurationindays, owner.getFormationMeter());
+			}
+		case REDUCTION_IN_WORKING_TIME:
+			if (requestdurationindays > owner.getRTTMeter()) {
+				throw new NotEnoughTimeInMeter(type,
+						requestdurationindays, owner.getRTTMeter());
+			}
+		}
 		
-		this.checkHR = false;
-		this.checkCDS = false;
+		this.setOwner(owner.getID());
+		this.setType(type);
+
+		this.setBeggindate(beggindate);
+		this.setEnddate(enddate);
+		
+		this.setState(RequestState.WAITFORCDSVALIDATION);
 		
 		save();
+	}
+	
+	
+	///METHODS
+	public void checkCDS() {
+		this.state = RequestState.WAITFORHRVALIDATION;
+				
+		save();
+	}
+
+	public void checkHR() throws Exception {
+		//calculate request duration in day
+		int nbday = (int) (Math.abs(this.beggindate.getTime()
+				- this.enddate.getTime()) / Request.DURATION_OF_A_DAY_IN_MILLISECONDE);
+		
+		setState(RequestState.VALIDATED);
+
+		//sub request duration to appropriate owner meter
+		switch (this.type) {
+		case PAID_HOLLIDAYS:
+			this.getOwner().setHollidaysMeter(this.getOwner().getHollidaysMeter() - nbday);
+			break;
+		case FORMATION:
+			this.getOwner().setFormationMeter(this.getOwner().getFormationMeter() - nbday);
+			break;
+		case REDUCTION_IN_WORKING_TIME:
+			this.getOwner().setRTTMeter(this.getOwner().getRTTMeter() - nbday);
+			break;
+		}
+		
+		save();
+	}
+
+	public void refuse(final String motif) {
+		setState(RequestState.REFUSED);
+		setMotif(motif);
+
+		save();
+	}
+	
+	
+	///INHERITED METHODS
+	@Override
+	protected String getTableName() {
+		return "request";
 	}
 	
 	@Override
 	public Map<String, String> serialize() {
 		Map<String, String> data = new HashMap<String, String>();
 		
-		data.put("id", String.valueOf(getID()));
 		data.put("requester", String.valueOf(getOwner().getID()));
 		data.put("type", getType().toString());
 		data.put("begindate", getBeggindate().toString());
 		data.put("enddate", getEnddate().toString());
-		data.put("checkbycds", String.valueOf(isCheckCDS()));
-		data.put("checkbyhr", String.valueOf(isCheckHR()));
+		data.put("state", String.valueOf(this.state));
 		data.put("motif", getMotif());
 		
 		return data;
@@ -186,26 +199,52 @@ public class Request extends DatabaseEntity {
 	
 	@Override
 	public void deserialize(Map<String, String> data) {
-		setID(Integer.parseInt(data.get("id")));
-		
-		setOwner(new Employe(Integer.parseInt(data.get("requester"))));
-		
-		type = RequestType.valueOf(data.get("type"));
-		beggindate = Timestamp.valueOf(data.get("begindate"));
-		enddate = Timestamp.valueOf(data.get("enddate"));
-	}
-	
-	public static DatabaseEntity getInstance() {
-		return new Request();
+		this.setOwner(Integer.parseInt(data.get("requester")));
+		this.setType(RequestType.valueOf(data.get("type")));
+		this.setBeggindate(Timestamp.valueOf(data.get("begindate")));
+		this.setEnddate(Timestamp.valueOf(data.get("enddate")));
+		this.setState(RequestState.valueOf(data.get("state")));
+		this.setMotif(data.get("motif"));
 	}
 
+	
+	///STATIC METHODS
+	public static Request[] loadAllRequest() {
+		DatabaseEntity[] entitys = DatabaseEntity.loadAll(new Request());
+		Request[] requests = new Request[entitys.length];
+		
+		for(int i = 0; i < entitys.length; i++) requests[i] = (Request) entitys[i];
+		
+		return requests;
+	}
+	
 	public static Request[] selectRequestsNotCheckedByCDS() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Request> requests = new ArrayList<Request>();
+		DatabaseEntity[] entitys = loadAll(new Request());
+		
+		for(DatabaseEntity entity : entitys) {
+			Request request = (Request) entity;
+			
+			if(request.getState() == RequestState.WAITFORCDSVALIDATION) {
+				requests.add(request);
+			}
+		}
+		
+		return requests.toArray(new Request[0]);
 	}
 
 	public static Request[] selectRequestsNotCheckedByHR() {
-		// TODO Auto-generated method stub
-		return null;
+		ArrayList<Request> requests = new ArrayList<Request>();
+		DatabaseEntity[] entitys = loadAll(new Request());
+		
+		for(DatabaseEntity entity : entitys) {
+			Request request = (Request) entity;
+			
+			if(request.getState() == RequestState.WAITFORHRVALIDATION) {
+				requests.add(new Request(entity.getID()));
+			}
+		}
+		
+		return requests.toArray(new Request[0]);
 	}
 }

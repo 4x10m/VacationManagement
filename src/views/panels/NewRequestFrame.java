@@ -5,11 +5,13 @@ import javax.swing.JPanel;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -22,64 +24,58 @@ import core.exceptions.RequestDateIntervalDurationException;
 import core.structs.Employe;
 import core.structs.Request;
 
+@SuppressWarnings("serial")
 public class NewRequestFrame extends JFrame {
-	private static final long serialVersionUID = 6441125042263197670L;
-	
 	private JTextField begindate_textfield;
 	private JTextField enddate_textfield;
-	private JRadioButton rdbtnNewRadioButton_1;
-	private JRadioButton rdbtnNewRadioButton_2;
-	private JRadioButton rdbtnNewRadioButton;
+	private JRadioButton rtt_radiobutton;
+	private JRadioButton hollidays_radiobutton;
+	private JRadioButton formation_radiobutton;
 	
+	private EmployePanel invoker;
 	private Employe employe;
-	
-	public Employe getEmploye() {
-		return employe;
-	}
 
-	private NewRequestFrame() {
-		setLayout(new GridLayout(0, 2, 0, 0));
+	public NewRequestFrame(EmployePanel invoker, Employe employe) {
+		this.invoker = invoker;
+		this.employe = employe;
 		
-		JLabel lblType = new JLabel("type");
-		add(lblType);
+		JPanel radiobutton_panel = new JPanel();
+		JLabel type_label = new JLabel("type");
+		JLabel begindate_label = new JLabel("Date de d\u00E9but (MM/JJ/AAAA)");
+		JLabel enddate_label = new JLabel("Date de fin (MM/JJ/AAAA)");
 		
-		JPanel panel = new JPanel();
-		add(panel);
-		
-		rdbtnNewRadioButton_1 = new JRadioButton("rtt");
-		panel.add(rdbtnNewRadioButton_1);
-		
-		rdbtnNewRadioButton_2 = new JRadioButton("cong\u00E9s pay\u00E9s");
-		panel.add(rdbtnNewRadioButton_2);
-		
-		rdbtnNewRadioButton = new JRadioButton("formation");
-		panel.add(rdbtnNewRadioButton);
-		
-		JLabel lblNewLabel = new JLabel("date de d\u00E9but");
-		add(lblNewLabel);
+		rtt_radiobutton = new JRadioButton("RTT");
+		hollidays_radiobutton = new JRadioButton("Cong\u00E9s");
+		formation_radiobutton = new JRadioButton("Formation");
 		
 		begindate_textfield = new JTextField();
-		add(begindate_textfield);
-		begindate_textfield.setColumns(10);
-		
-		JLabel lblNewLabel_1 = new JLabel("date de fin");
-		add(lblNewLabel_1);
-		
 		enddate_textfield = new JTextField();
-		add(enddate_textfield);
-		enddate_textfield.setColumns(10);
 		
 		JButton add_button = new JButton("Ajouter");
-		add(add_button);
-		
 		JButton cancel_button = new JButton("Annuler");
-		add(cancel_button);
-	}
-	
-	public NewRequestFrame(Employe employe) {
-		this();
 		
-		this.employe = employe;
+		setTitle("Nouvelle Requête");
+		setSize(400, 275);
+		setResizable(false);
+		setLayout(new GridLayout(0, 2, 5, 10));
+		
+		add_button.addMouseListener(new AddButtonMouseAdapter());
+		cancel_button.addMouseListener(new CancelButtonEventHandler());
+		
+		radiobutton_panel.setLayout(new GridLayout(3, 1));
+		
+		radiobutton_panel.add(rtt_radiobutton);
+		radiobutton_panel.add(hollidays_radiobutton);
+		radiobutton_panel.add(formation_radiobutton);
+
+		add(type_label);
+		add(radiobutton_panel);
+		add(begindate_label);
+		add(begindate_textfield);
+		add(enddate_label);
+		add(enddate_textfield);
+		add(add_button);
+		add(cancel_button);
 	}
 
 	class AddButtonMouseAdapter extends MouseAdapter {
@@ -89,25 +85,28 @@ public class NewRequestFrame extends JFrame {
 			
 			RequestType type = null;
 			
-			if(rdbtnNewRadioButton.isSelected()) type = RequestType.REDUCTION_IN_WORKING_TIME;
-			if(rdbtnNewRadioButton_1.isSelected()) type = RequestType.FORMATION;
-			if(rdbtnNewRadioButton_2.isSelected()) type = RequestType.PAID_HOLLIDAYS;
-			
-			Request request;
+			if(formation_radiobutton.isSelected()) type = RequestType.REDUCTION_IN_WORKING_TIME;
+			if(rtt_radiobutton.isSelected()) type = RequestType.FORMATION;
+			if(hollidays_radiobutton.isSelected()) type = RequestType.PAID_HOLLIDAYS;
 			
 			try {
-				request = new Request(getEmploye(), type, new Timestamp(Date.parse(begindate_textfield.getText())), new Timestamp(Date.parse(enddate_textfield.getText())));
+				new Request(employe, type, new Timestamp((new SimpleDateFormat("MM/dd/yyyy").parse(begindate_textfield.getText())).getTime()), new Timestamp((new SimpleDateFormat("MM/dd/yyyy").parse(enddate_textfield.getText())).getTime()));
+
+				invoker.refresh();
 				
-				getEmploye().doARequest(request);
-			} catch (RequestBegginDateBeforeTodayException
-					| RequestBegginDateBeforeEndDateException
-					| RequestDateIntervalDurationException e) {
-				e.printStackTrace();
+				dispose();
+			} catch (RequestBegginDateBeforeTodayException e) {
+				JOptionPane.showMessageDialog(NewRequestFrame.this, e.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			} catch (RequestBegginDateBeforeEndDateException e) {
+				JOptionPane.showMessageDialog(NewRequestFrame.this, e.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			} catch (RequestDateIntervalDurationException e) {
+				JOptionPane.showMessageDialog(NewRequestFrame.this, e.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 			} catch (NotEnoughTimeInMeter e) {
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(NewRequestFrame.this, e.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+			} catch (ParseException e) {
+				JOptionPane.showMessageDialog(NewRequestFrame.this, e.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
 			}
-			
-			
+
 		}
 	}
 	
@@ -115,6 +114,8 @@ public class NewRequestFrame extends JFrame {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			super.mouseClicked(e);
+			
+			dispose();
 		}
 	}
 }

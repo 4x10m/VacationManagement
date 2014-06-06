@@ -2,8 +2,6 @@ package core.structs;
 
 import java.util.ArrayList;
 
-import core.database.DatabaseEntity;
-
 public class HR extends User {
 	private ArrayList<Request> requeststocheck;
 
@@ -13,10 +11,6 @@ public class HR extends User {
 
 	public void addARequest(final Request request) {
 		this.requeststocheck.add(request);
-	}
-	
-	private HR() {
-		super("", "");
 	}
 
 	public HR(int id) {
@@ -35,11 +29,7 @@ public class HR extends User {
 	}
 
 	public void refuseRequest(final Request request, final String motif) {
-		request.refuseHR(motif);
+		request.refuse(motif);
 		this.requeststocheck.remove(request);
-	}
-
-	public static DatabaseEntity getInstance() {
-		return new HR();
 	}
 }

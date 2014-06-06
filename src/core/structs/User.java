@@ -1,17 +1,23 @@
 package core.structs;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import core.database.DatabaseController;
 import core.database.DatabaseEntity;
 import core.enums.UserType;
+import core.exceptions.InvalidCredentialException;
 
 public abstract class User extends DatabaseEntity {
-	private static final String TABLE_NAME = "users";
-	
 	private String username;
 	private String password;
+	
+	@Override
+	protected String getTableName() {
+		return "users";
+	}
 	
 	public String getUsername() {
 		return username;
@@ -22,58 +28,43 @@ public abstract class User extends DatabaseEntity {
 	}
 	
 	public User(int id) {
-		super(TABLE_NAME);
+		super(id);
 		
-		setID(id);
-		
-		deserialize(DatabaseController.getEntityData(this));
+		load();
 	}
-
-	public User(String username, String password) {
-		super(TABLE_NAME);
+	
+	public static User identify(String username, String password) throws InvalidCredentialException {
+		User user = null;
+		String slqrequest = "select id, privilege from users where email = ? and password = ?";
 		
-		this.username = username;
-		this.password = password;
-	}
+		try {
+			PreparedStatement statement = getSQLConnection().prepareStatement(slqrequest);
 
-	public boolean checkCredential() {
-		int id = DatabaseController.checkCredential(username, password);
-		
-		if(id > 0) {
-			load(id);
+			statement.setString(1, username);
+			statement.setString(2, password);
+
+			ResultSet result = statement.executeQuery();
+
+			result.next();
+
+			int id = result.getInt("id");
 			
-			return true;
+			switch(UserType.valueOf(result.getString("privilege"))) {
+			case CDS:
+				user = new CDS(id);
+				break;
+			case EMPLOYE:
+				user = new Employe(id);
+				break;
+			case HR:
+				user = new HR(id);
+				break;
+			}
+		} catch (SQLException e) {
+			throw new InvalidCredentialException();
 		}
 		
-		return false;
-	}
-	
-	public void load(int id) {
-		setID(id);
-		
-		deserialize(DatabaseController.getEntityData(this));
-	}
-	
-	public static User static_load(int id) {
-		User result = null;
-		
-		Map<String, String> data = DatabaseController.getEntityData(TABLE_NAME, id);
-		
-		UserType type = UserType.valueOf((data.get("privilege")));
-		
-		switch (type) {
-		case CDS:
-			result = new CDS(id);
-			break;
-		case EMPLOYE:
-			result = new Employe(id);
-			break;
-		case HR:
-			result = new HR(id);
-			break;
-		}
-		
-		return result;
+		return user;
 	}
 
 	@Override
@@ -84,25 +75,11 @@ public abstract class User extends DatabaseEntity {
 		data.put("email", this.username);
 		data.put("password", this.password);
 		
-		if(this instanceof Employe) {
-			data.put("privilege", String.valueOf(UserType.EMPLOYE));
-		}
-		
-		if(this instanceof CDS) {
-			data.put("privilege", String.valueOf(UserType.CDS));
-		}
-		
-		if(this instanceof HR) {
-			data.put("privilege", String.valueOf(UserType.HR));
-		}
-		
 		return data;
 	}
 	
 	@Override
 	public void deserialize(Map<String, String> data) {
-		setID(Integer.parseInt(data.get("id")));
-		
 		this.username = data.get("email");
 		this.password = data.get("password");
 	}

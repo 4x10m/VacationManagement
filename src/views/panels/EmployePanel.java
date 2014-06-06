@@ -7,71 +7,116 @@ import java.awt.GridLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
+import views.MainFrame;
+import views.customcomponents.ListPanel;
+import core.database.DatabaseEntity;
 import core.structs.Employe;
 
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
+@SuppressWarnings("serial")
 public class EmployePanel extends JPanel {
-	private JTextField textField_1;
-	private JTextField textField;
-	private JTextField textField_2;
+	private final Employe employe;
 	
-	private Employe employe;
-
-	/**
-	 * Create the panel.
-	 */
-	public EmployePanel(final Employe employe, EmployeRequestsPanel panel2) {
+	private final ListPanel panel2;
+	
+	private final JTextField hollidaysmeter_textfield;
+	private final JTextField formationmeter_textfield;
+	private final JTextField rttmeter_textfield;
+	
+	public EmployePanel(final MainFrame container, final Employe employe) {
 		this.employe = employe;
+
+		setLayout(new GridLayout(2, 1, 10, 10));
+		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
-		setLayout(new GridLayout(2, 1, 0, 0));
+		final JPanel panel = new JPanel();
+		panel2 = new ListPanel() {
+			@Override
+			public DatabaseEntity[] getData() {
+				Object[] temp = employe.getRequests().toArray();
+				 DatabaseEntity[] requests = new DatabaseEntity[temp.length];
+				
+				for(int i = 0; i < temp.length; i++) requests[i] = (DatabaseEntity) temp[i];
+				
+				return requests;
+			}
+		};
+
+		JLabel username_label = new JLabel(employe.getUsername());
+		JLabel holliday_label = new JLabel("Compteur Cong\u00E9s :");
+		JLabel rtt_label = new JLabel("Compteur RTT :");
+		JLabel formation_label = new JLabel("Compteur Formation :");
+
+		hollidaysmeter_textfield = new JTextField(String.valueOf(employe.getHollidaysMeter()));
+		formationmeter_textfield = new JTextField(String.valueOf(employe.getFormationMeter()));
+		rttmeter_textfield = new JTextField(String.valueOf(employe.getRTTMeter()));
 		
-		JPanel panel = new JPanel();
-		add(panel);
-		panel.setLayout(null);
+		JButton newrequest_button = new JButton("Nouvelle Requête");
+		JButton refreshButton = new JButton("Rafraîchir");
+		JButton deconnection_button = new JButton("Déconnexion");
 		
-		JLabel lblNom = new JLabel(employe.getUsername());
-		lblNom.setBounds(10, 11, 138, 14);
-		panel.add(lblNom);
+		hollidaysmeter_textfield.setEnabled(false);
+		formationmeter_textfield.setEnabled(false);
+		rttmeter_textfield.setEnabled(false);
 		
-		JButton btnNouvelleRequete = new JButton("Nouvelle Requete");
-		btnNouvelleRequete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				new NewRequestFrame(employe).setVisible(true);
+		newrequest_button.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent arg0) {
+				super.mouseClicked(arg0);
+				
+				new NewRequestFrame(EmployePanel.this, employe).setVisible(true);
 			}
 		});
-		btnNouvelleRequete.setBounds(312, 11, 128, 31);
-		panel.add(btnNouvelleRequete);
 		
-		JLabel lblCompteurCongs = new JLabel("Compteur cong\u00E9s :");
-		lblCompteurCongs.setBounds(10, 36, 101, 14);
-		panel.add(lblCompteurCongs);
+		refreshButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				super.mouseClicked(arg0);
+				
+				refresh();
+			}
+		});
 		
-		JLabel lblNewLabel = new JLabel("Compteur rtt :");
-		lblNewLabel.setBounds(10, 61, 101, 14);
-		panel.add(lblNewLabel);
+		deconnection_button.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				super.mouseClicked(e);
+				
+				container.loadIdentificationPanel();
+			}
+		});
 		
-		JLabel lblCompteurFormation = new JLabel("Compteur formation");
-		lblCompteurFormation.setBounds(10, 86, 101, 14);
-		panel.add(lblCompteurFormation);
+		panel.setLayout(new GridLayout(5, 2, 10, 10));
 		
-		textField_1 = new JTextField(String.valueOf(employe.getHollidaysMeter()));
-		textField_1.setBounds(116, 33, 86, 20);
-		panel.add(textField_1);
-		textField_1.setColumns(10);
-		
-		textField = new JTextField(String.valueOf(employe.getFormationMeter()));
-		textField.setBounds(116, 58, 86, 20);
-		panel.add(textField);
-		textField.setColumns(10);
-		
-		textField_2 = new JTextField(String.valueOf(employe.getRTTMeter()));
-		textField_2.setBounds(116, 86, 86, 20);
-		panel.add(textField_2);
-		textField_2.setColumns(10);
-
+		add(panel);
 		add(panel2);
+		
+		panel.add(newrequest_button);
+		panel.add(refreshButton);
+		panel.add(username_label);
+		panel.add(deconnection_button);
+		panel.add(holliday_label);
+		panel.add(hollidaysmeter_textfield);
+		panel.add(rtt_label);
+		panel.add(rttmeter_textfield);
+		panel.add(formation_label);
+		panel.add(formationmeter_textfield);
+		
+		refresh();
+	}
+	
+	public void refresh() {
+		panel2.refreshTable();
+		
+		hollidaysmeter_textfield.setText(String.valueOf(employe.getHollidaysMeter()));
+		formationmeter_textfield.setText(String.valueOf(employe.getFormationMeter()));
+		rttmeter_textfield.setText(String.valueOf(employe.getRTTMeter()));
+	
+		panel2.repaint();
+		revalidate();
+		repaint();
 	}
 }
